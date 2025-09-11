@@ -13,7 +13,15 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        'inter': ['Inter', 'sans-serif'],
+      },
       colors: {
+        'esports-black': 'hsl(var(--esports-black))',
+        'esports-white': 'hsl(var(--esports-white))',
+        'esports-grey': 'hsl(var(--esports-grey))',
+        'esports-grey-light': 'hsl(var(--esports-grey-light))',
+        'esports-grey-dark': 'hsl(var(--esports-grey-dark))',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

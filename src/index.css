@@ -1,15 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Engineers Esports Design System - Premium Black/White/Grey Theme */
 
 @layer base {
   :root {
+    /* Core Brand Colors - Pure esports aesthetic */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 0%;
+    
+    /* Esports Black Theme */
+    --esports-black: 0 0% 0%;
+    --esports-white: 0 0% 100%;
+    --esports-grey: 0 0% 50%;
+    --esports-grey-light: 0 0% 85%;
+    --esports-grey-dark: 0 0% 20%;
+    
+    /* Premium Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--esports-black)), hsl(var(--esports-grey-dark)));
+    --gradient-section: linear-gradient(180deg, hsl(var(--esports-black)), hsl(var(--esports-grey-dark)));
+    
+    /* Shadows & Effects */
+    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --glow-accent: 0 0 30px rgba(255, 255, 255, 0.1);
+    
+    /* Animation Timings */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -100,6 +121,61 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+    font-feature-settings: "cv01", "cv02", "cv03", "cv04";
+  }
+  
+  /* Esports Brand Typography */
+  .brand-logo {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+  }
+  
+  .hero-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  
+  /* Smooth Scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Premium Button Variants */
+  .btn-hero {
+    @apply bg-esports-white text-esports-black px-8 py-4 font-bold tracking-wide;
+    @apply hover:bg-esports-grey-light transition-all duration-300;
+    @apply hover:scale-105 hover:shadow-lg;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-esports-white text-esports-white px-6 py-3;
+    @apply hover:bg-esports-white hover:text-esports-black transition-all duration-300;
+  }
+  
+  /* Card Styles */
+  .card-premium {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10;
+    @apply hover:bg-white/10 transition-all duration-300;
+    @apply hover:scale-[1.02] hover:shadow-xl;
+  }
+  
+  /* Section Styles */
+  .section-hero {
+    background: var(--gradient-hero);
+    min-height: 100vh;
+  }
+  
+  .section-dark {
+    @apply bg-esports-black text-esports-white;
+  }
+  
+  .section-light {
+    @apply bg-esports-white text-esports-black;
   }
 }
