@@ -1,112 +1,84 @@
-import { useState } from 'react';
 import { Calendar, MapPin, Trophy, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+// Import tournament posters
+import bgmiShowdownPoster from '@/assets/bgmi-showdown-poster.jpg';
+import engineersCupPoster from '@/assets/engineers-cup-poster.jpg';
+import proLeaguePoster from '@/assets/pro-league-poster.jpg';
 
 const Events = () => {
-  const [formData, setFormData] = useState({
-    teamName: '',
-    captainName: '',
-    player1: '',
-    player2: '',
-    player3: '',
-    player4: '',
-    player5: '',
-    contactNumber: '',
-    email: '',
-    paymentConfirmation: null as File | null
-  });
-
-  const { toast } = useToast();
-
-  // Mock upcoming events
+  // Tournament data with posters
   const upcomingEvents = [
     {
       id: 1,
       name: 'BGMI Showdown 2025',
       date: '15 March 2025',
+      time: '6:00 PM IST',
       location: 'Mumbai Gaming Arena',
       prizePool: '₹5,00,000',
       teamsRegistered: 64,
       maxTeams: 128,
-      status: 'Registration Open'
+      status: 'Registration Open',
+      poster: bgmiShowdownPoster,
+      description: 'The ultimate BGMI tournament featuring the best teams across India competing for glory and massive prize pool.',
+      registrationFee: 249
     },
     {
       id: 2,
       name: 'Engineers Cup Championship',
-      date: '22 March 2025',
+      date: '22 March 2025', 
+      time: '7:00 PM IST',
       location: 'Online Tournament',
       prizePool: '₹2,50,000',
       teamsRegistered: 32,
       maxTeams: 64,
-      status: 'Registration Open'
+      status: 'Registration Open',
+      poster: engineersCupPoster,
+      description: 'Exclusive tournament for engineering students and professionals. Show your tactical prowess.',
+      registrationFee: 249
     },
     {
       id: 3,
       name: 'Pro League Qualifiers',
       date: '5 April 2025',
+      time: '5:00 PM IST', 
       location: 'Delhi Convention Center',
       prizePool: '₹7,50,000',
       teamsRegistered: 0,
       maxTeams: 256,
-      status: 'Coming Soon'
+      status: 'Coming Soon',
+      poster: proLeaguePoster,
+      description: 'Qualify for the prestigious Pro League championship. Only the best make it through.',
+      registrationFee: 249
     }
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
-    if (files) {
-      setFormData(prev => ({ ...prev, [name]: files[0] }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+  const pastEvents = [
+    {
+      id: 4,
+      name: 'Winter Championship 2024',
+      date: '15 December 2024',
+      time: '6:00 PM IST',
+      location: 'Bangalore Gaming Hub',
+      prizePool: '₹3,00,000',
+      teamsRegistered: 128,
+      maxTeams: 128,
+      status: 'Completed',
+      poster: bgmiShowdownPoster,
+      description: 'The winter finale tournament that brought together top BGMI teams.',
+      registrationFee: 199
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic validation
-    const requiredFields = ['teamName', 'captainName', 'player1', 'player2', 'player3', 'player4', 'contactNumber', 'email'];
-    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
-    
-    if (missingFields.length > 0) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Simulate form submission
-    console.log('Team Registration Data:', formData);
-    
-    toast({
-      title: "Registration Successful!",
-      description: "Your team has been registered successfully. See you at the battlefield!",
-    });
-
-    // Reset form
-    setFormData({
-      teamName: '',
-      captainName: '',
-      player1: '',
-      player2: '',
-      player3: '',
-      player4: '',
-      player5: '',
-      contactNumber: '',
-      email: '',
-      paymentConfirmation: null
-    });
-  };
+  ];
 
   return (
-    <div className="pt-16">
+    <div className="pt-16 min-h-screen bg-background">
       {/* Hero Section */}
       <section className="section-dark py-20">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-6 text-esports-white">
-            Upcoming <span className="text-esports-grey">Events</span>
+          <h1 className="text-5xl font-bold mb-6 text-esports-white hero-text">
+            Tournament <span className="text-esports-grey">Events</span>
           </h1>
           <p className="text-xl text-esports-grey-light max-w-3xl mx-auto">
             Join the most competitive BGMI tournaments in India. 
@@ -119,177 +91,110 @@ const Events = () => {
       <section className="section-light py-20">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-esports-black">
-            Tournament <span className="text-esports-grey">Schedule</span>
+            Upcoming <span className="text-esports-grey">Tournaments</span>
           </h2>
           
-          <div className="grid gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {upcomingEvents.map((event) => (
-              <div key={event.id} className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-esports-black mb-2">{event.name}</h3>
-                    <div className="flex flex-wrap gap-4 text-esports-grey-dark">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} />
-                        <span>{event.date}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} />
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Trophy size={16} />
-                        <span>{event.prizePool}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users size={16} />
-                        <span>{event.teamsRegistered}/{event.maxTeams} Teams</span>
-                      </div>
+              <Card key={event.id} className="overflow-hidden hover:scale-[1.02] transition-all duration-300 card-premium">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={event.poster} 
+                    alt={event.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-card-foreground mb-2">{event.name}</h3>
+                  <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} />
+                      <span>{event.date} at {event.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} />
+                      <span>{event.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Trophy size={16} />
+                      <span>{event.prizePool}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users size={16} />
+                      <span>{event.teamsRegistered}/{event.maxTeams} Teams</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  <div className="flex items-center justify-between">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       event.status === 'Registration Open' 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
                       {event.status}
                     </span>
-                    {event.status === 'Registration Open' && (
-                      <button 
-                        className="btn-hero text-sm px-6 py-2 rounded-lg"
-                        onClick={() => document.getElementById('registration-form')?.scrollIntoView({ behavior: 'smooth' })}
-                      >
-                        Register Team
-                      </button>
-                    )}
+                    <Link to={`/tournament/${event.id}`}>
+                      <Button variant="default" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Registration Form */}
-      <section id="registration-form" className="section-dark py-20">
+      {/* Past Events */}
+      <section className="section-dark py-20">
         <div className="container mx-auto px-6">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-8 text-esports-white">
-              Team <span className="text-esports-grey">Registration</span>
-            </h2>
-            <p className="text-center text-esports-grey-light mb-12">
-              Fill out the form below to register your team for upcoming tournaments.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-esports-white font-semibold mb-2">
-                    Team Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="teamName"
-                    value={formData.teamName}
-                    onChange={handleInputChange}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-esports-white placeholder-esports-grey focus:border-esports-white focus:outline-none"
-                    placeholder="Enter team name"
-                    required
+          <h2 className="text-4xl font-bold text-center mb-12 text-esports-white">
+            Past <span className="text-esports-grey">Tournaments</span>
+          </h2>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {pastEvents.map((event) => (
+              <Card key={event.id} className="overflow-hidden hover:scale-[1.02] transition-all duration-300 card-premium bg-card/50">
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={event.poster} 
+                    alt={event.name}
+                    className="w-full h-full object-cover opacity-75"
                   />
                 </div>
-                <div>
-                  <label className="block text-esports-white font-semibold mb-2">
-                    Captain Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="captainName"
-                    value={formData.captainName}
-                    onChange={handleInputChange}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-esports-white placeholder-esports-grey focus:border-esports-white focus:outline-none"
-                    placeholder="Captain's name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-esports-white font-semibold mb-4">Player IGNs & IDs</h3>
-                <div className="grid gap-4">
-                  {['player1', 'player2', 'player3', 'player4', 'player5'].map((player, index) => (
-                    <div key={player}>
-                      <label className="block text-esports-grey-light text-sm mb-1">
-                        Player {index + 1} {index < 4 ? '*' : '(Optional)'}
-                      </label>
-                      <input
-                        type="text"
-                        name={player}
-                        value={formData[player as keyof typeof formData] as string}
-                        onChange={handleInputChange}
-                        className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-esports-white placeholder-esports-grey focus:border-esports-white focus:outline-none"
-                        placeholder="Player IGN & ID"
-                        required={index < 4}
-                      />
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-card-foreground mb-2">{event.name}</h3>
+                  <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} />
+                      <span>{event.date}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-esports-white font-semibold mb-2">
-                    Contact Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="contactNumber"
-                    value={formData.contactNumber}
-                    onChange={handleInputChange}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-esports-white placeholder-esports-grey focus:border-esports-white focus:outline-none"
-                    placeholder="+91 XXXXX XXXXX"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-esports-white font-semibold mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-esports-white placeholder-esports-grey focus:border-esports-white focus:outline-none"
-                    placeholder="team@example.com"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-esports-white font-semibold mb-2">
-                  Payment Confirmation (Optional)
-                </label>
-                <input
-                  type="file"
-                  name="paymentConfirmation"
-                  onChange={handleInputChange}
-                  accept="image/*,.pdf"
-                  className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-esports-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-esports-white file:text-esports-black file:font-semibold hover:file:bg-esports-grey-light"
-                />
-                <p className="text-esports-grey text-sm mt-1">
-                  Upload payment screenshot for paid tournaments
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full btn-hero py-4 text-lg font-bold rounded-lg"
-              >
-                Register Your Team
-              </button>
-            </form>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} />
+                      <span>{event.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Trophy size={16} />
+                      <span>{event.prizePool}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users size={16} />
+                      <span>{event.teamsRegistered} Teams Participated</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                      {event.status}
+                    </span>
+                    <Link to={`/tournament/${event.id}`}>
+                      <Button variant="outline" size="sm">
+                        View Results
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
