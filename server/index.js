@@ -104,6 +104,28 @@ app.get('/api/admins', async (req, res) => {
   }
 });
 
+// Get all tournaments
+app.get('/api/tournaments', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM tournaments ORDER BY id');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get a single tournament by ID
+app.get('/api/tournaments/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('SELECT * FROM tournaments WHERE id = $1', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Tournament not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

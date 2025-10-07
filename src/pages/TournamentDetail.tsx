@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Trophy, Users, ArrowLeft, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,17 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-
-// Import tournament posters
-import bgmiShowdownPoster from '@/assets/bgmi-showdown-poster.jpg';
-import engineersCupPoster from '@/assets/engineers-cup-poster.jpg';
-import proLeaguePoster from '@/assets/pro-league-poster.jpg';
+import { useState, useEffect } from 'react';
 
 const TournamentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
+  const [tournament, setTournament] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   const [formData, setFormData] = useState({
     teamName: '',
     captainName: '',
@@ -31,110 +30,44 @@ const TournamentDetail = () => {
 
   const [showPayment, setShowPayment] = useState(false);
 
-  // Tournament data (in real app, this would come from API/database)
-  const tournaments = {
-    1: {
-      id: 1,
-      name: 'BGMI Showdown 2025',
-      date: '15 March 2025',
-      time: '6:00 PM IST',
-      location: 'Mumbai Gaming Arena',
-      prizePool: '₹5,00,000',
-      teamsRegistered: 64,
-      maxTeams: 128,
-      status: 'Registration Open',
-      poster: bgmiShowdownPoster,
-      description: 'The ultimate BGMI tournament featuring the best teams across India competing for glory and massive prize pool. This tournament will test your skills, strategy, and teamwork.',
-      registrationFee: 249,
-      rules: [
-        'Teams must have 4-6 players with 1 substitute',
-        'All players must be above 16 years of age',
-        'Fair play and no cheating policy strictly enforced',
-        'Tournament format: Squad matches with elimination rounds'
-      ]
-    },
-    2: {
-      id: 2,
-      name: 'Engineers Cup Championship',
-      date: '22 March 2025', 
-      time: '7:00 PM IST',
-      location: 'Online Tournament',
-      prizePool: '₹2,50,000',
-      teamsRegistered: 32,
-      maxTeams: 64,
-      status: 'Registration Open',
-      poster: engineersCupPoster,
-      description: 'Exclusive tournament for engineering students and professionals. Show your tactical prowess and engineering mindset in the battlefield.',
-      registrationFee: 249,
-      rules: [
-        'Open to engineering students and professionals only',
-        'Valid student ID or employment proof required',
-        'Teams must have 4-6 players',
-        'Online format with multiple rounds'
-      ]
-    },
-    3: {
-      id: 3,
-      name: 'Pro League Qualifiers',
-      date: '5 April 2025',
-      time: '5:00 PM IST', 
-      location: 'Delhi Convention Center',
-      prizePool: '₹7,50,000',
-      teamsRegistered: 0,
-      maxTeams: 256,
-      status: 'Coming Soon',
-      poster: proLeaguePoster,
-      description: 'Qualify for the prestigious Pro League championship. Only the best make it through this intense qualification tournament.',
-      registrationFee: 249,
-      rules: [
-        'Invitation only tournament',
-        'Teams must have previous tournament experience',
-        'Strict performance criteria for qualification',
-        'Multi-stage elimination format'
-      ]
-    },
-    4: {
-      id: 4,
-      name: 'Winter Championship 2024',
-      date: '15 December 2024',
-      time: '6:00 PM IST',
-      location: 'Bangalore Gaming Hub',
-      prizePool: '₹3,00,000',
-      teamsRegistered: 128,
-      maxTeams: 128,
-      status: 'Completed',
-      poster: bgmiShowdownPoster,
-      description: 'The winter finale tournament that brought together top BGMI teams.',
-      registrationFee: 199,
-      rules: []
-    }
-  };
+  useEffect(() => {
+    const fetchTournament = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tournaments/${id}`);
+        if (!response.ok) throw new Error('Tournament not found');
+        const data = await response.json();
+        setTournament(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const tournament = tournaments[parseInt(id!) as keyof typeof tournaments];
+    fetchTournament();
+  }, [id]);
 
-  if (!tournament) {
-    return (
-      <div className="pt-16 min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Tournament Not Found</h1>
-          <Button onClick={() => navigate('/events')}>Back to Events</Button>
-        </div>
+  if (loading) return <div className="pt-16 min-h-screen flex items-center justify-center">Loading...</div>;
+  if (error || !tournament) return (
+    <div className="pt-16 min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">Tournament Not Found</h1>
+        <Button onClick={() => navigate('/events')}>Back to Events</Button>
       </div>
-    );
-  }
+    </div>
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
+
     const requiredFields = ['teamName', 'captainName', 'player1', 'player2', 'player3', 'player4', 'contactNumber', 'email'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
-    
+
     if (missingFields.length > 0) {
       toast({
         title: "Missing Information",
@@ -144,31 +77,93 @@ const TournamentDetail = () => {
       return;
     }
 
-    // Show payment modal
-    setShowPayment(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/register-event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: 1,
+          event_name: tournament.name,
+          team_name: formData.teamName,
+          captain_name: formData.captainName,
+          players: [formData.player1, formData.player2, formData.player3, formData.player4, formData.player5],
+          contact_number: formData.contactNumber,
+          email: formData.email
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to register team');
+
+      await response.json();
+      toast({
+        title: "Registration Successful",
+        description: `Your team has been registered for ${tournament.name}`,
+      });
+
+      setShowPayment(true);
+
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Something went wrong",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handlePayment = () => {
-    // Simulate payment processing
-    toast({
-      title: "Registration Successful!",
-      description: "Your team has been registered successfully. See you at the battlefield!",
-    });
-    
-    // Reset form and hide payment
-    setFormData({
-      teamName: '',
-      captainName: '',
-      player1: '',
-      player2: '',
-      player3: '',
-      player4: '',
-      player5: '',
-      contactNumber: '',
-      email: ''
-    });
-    setShowPayment(false);
-    navigate('/events');
+  const handlePayment = async () => {
+    try {
+      const registrationResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/register-event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: 1,
+          event_name: tournament.name
+        })
+      });
+      const registrationData = await registrationResponse.json();
+
+      if (!registrationResponse.ok) throw new Error(registrationData.error || 'Registration failed');
+
+      const paymentResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: 1,
+          amount: tournament.registrationFee,
+          status: 'Paid'
+        })
+      });
+      const paymentData = await paymentResponse.json();
+
+      if (!paymentResponse.ok) throw new Error(paymentData.error || 'Payment failed');
+
+      toast({
+        title: "Registration Successful!",
+        description: `Your team has been registered and payment of ₹${tournament.registrationFee} is successful!`,
+      });
+
+      setFormData({
+        teamName: '',
+        captainName: '',
+        player1: '',
+        player2: '',
+        player3: '',
+        player4: '',
+        player5: '',
+        contactNumber: '',
+        email: ''
+      });
+      setShowPayment(false);
+      navigate('/events');
+
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -223,7 +218,7 @@ const TournamentDetail = () => {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-3 gap-12">
-            
+
             {/* Tournament Info */}
             <div className="lg:col-span-2 space-y-8">
               <Card>
@@ -245,7 +240,7 @@ const TournamentDetail = () => {
                   <p className="text-muted-foreground leading-relaxed">
                     {tournament.description}
                   </p>
-                  
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
@@ -265,11 +260,11 @@ const TournamentDetail = () => {
                     </div>
                   </div>
 
-                  {tournament.rules.length > 0 && (
+                  {tournament.rules?.length > 0 && (
                     <div>
                       <h3 className="font-semibold mb-3">Tournament Rules</h3>
                       <ul className="space-y-2 text-muted-foreground">
-                        {tournament.rules.map((rule, index) => (
+                        {tournament.rules.map((rule: string, index: number) => (
                           <li key={index} className="flex items-start gap-2">
                             <span className="text-primary mt-1.5 text-xs">●</span>
                             <span>{rule}</span>
